@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Players Quit — Onboarding Funnel Teardown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#11131A;
+    --bg-raised:#181B24;
+    --text:#F2F0E6;
+    --muted:#8B8FA3;
+    --amber:#E8A33D;
+    --coral:#D65D4A;
+    --line:#272B38;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);}
+  body{
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:740px;margin:0 auto;padding:64px 24px 100px;}
+  h1,h2{font-family:'Space Grotesk', sans-serif;font-weight:600;margin:0;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* header */
+  header{margin-bottom:56px;}
+  .kicker{font-size:14px;color:var(--muted);margin-bottom:14px;}
+  h1{font-size:clamp(28px,5vw,38px);line-height:1.15;max-width:20ch;letter-spacing:-0.01em;}
+  .dek{color:var(--muted);font-size:17px;margin-top:16px;max-width:56ch;}
+  .meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);}
+  .meta-item{font-size:13px;color:var(--muted);}
+  .meta-item b{display:block;color:var(--text);font-size:14px;font-weight:500;margin-top:2px;}
+
+  section{margin-bottom:56px;}
+  .label{font-size:13px;color:var(--muted);margin-bottom:14px;}
+  p{margin:0 0 14px;max-width:64ch;}
+  p:last-child{margin-bottom:0;}
+
+  /* funnel - the signature element */
+  .funnel{background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;padding:32px 28px 24px;}
+  .funnel-title{font-size:15px;color:var(--muted);margin-bottom:24px;}
+  .step{margin-bottom:4px;}
+  .step-row{display:flex;align-items:center;gap:14px;}
+  .step-label{width:190px;flex-shrink:0;font-size:14px;}
+  .step-bar-track{flex:1;height:34px;position:relative;}
+  .step-bar{height:100%;background:#3A4058;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;transition:none;}
+  .step-bar span{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);}
+  .step.leak .step-bar{background:linear-gradient(90deg,#3A4058, var(--coral));}
+  .step.leak .step-label{color:var(--coral);font-weight:500;}
+  .drop{display:flex;gap:14px;align-items:center;margin:2px 0 2px 204px;}
+  .drop-line{width:1px;height:20px;background:var(--line);margin-left:1px;}
+  .drop-note{font-size:12.5px;color:var(--muted);}
+  .drop-note.hot{color:var(--coral);font-weight:500;}
+
+  /* annotation callouts */
+  .note{
+    border-left:2px solid var(--amber);
+    padding:2px 0 2px 16px;
+    margin:20px 0;
+    font-size:14px;
+    color:var(--muted);
+  }
+  .note b{color:var(--amber);font-weight:500;}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:560px){.split{grid-template-columns:1fr;}}
+  .card{background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;padding:20px 22px;}
+  .card h3{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin:0 0 10px;}
+  .card.cold h3{color:var(--muted);}
+  .card.hot h3{color:var(--coral);}
+  .card ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted);}
+  .card li{margin-bottom:6px;}
+  .verdict{margin-top:16px;font-size:14px;}
+  .verdict b{color:var(--text);}
+
+  .fix-block{display:flex;gap:20px;align-items:flex-start;}
+  .fix-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:600;color:var(--amber);flex-shrink:0;line-height:1.2;}
+  .fix-text h3{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin:0 0 6px;}
+  .fix-text p{font-size:14.5px;color:var(--muted);}
+
+  .metric-row{display:flex;gap:32px;align-items:baseline;flex-wrap:wrap;margin-top:18px;}
+  .metric{}
+  .metric .val{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;}
+  .metric .val.up{color:var(--amber);}
+  .metric .tag{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .arrow{color:var(--muted);font-size:20px;align-self:center;}
+
+  footer{border-top:1px solid var(--line);padding-top:20px;margin-top:64px;font-size:13px;color:var(--muted);}
+
+  /* segment comparison */
+  .compare{display:flex;gap:32px;flex-wrap:wrap;background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-top:18px;}
+  .compare .metric .val{font-size:26px;}
+
+  /* screen-by-screen fix mockups */
+  .screens{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;}
+  .screen-card{flex:1;min-width:190px;background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
+  .screen-head{padding:9px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--muted);letter-spacing:.02em;}
+  .screen-body{padding:16px 14px;flex:1;}
+  .screen-copy{font-size:13.5px;line-height:1.45;margin-bottom:10px;}
+  .screen-sub{font-size:11.5px;color:var(--muted);}
+  .screen-btns{display:flex;flex-direction:column;gap:6px;margin-top:14px;}
+  .btn-fake{font-size:12px;padding:8px 10px;border-radius:6px;text-align:center;}
+  .btn-fake.primary{background:var(--amber);color:#20160a;font-weight:600;}
+  .btn-fake.secondary{border:1px solid var(--line);color:var(--muted);}
+  .mech-note{font-size:13.5px;color:var(--muted);margin-top:20px;}
+  .mech-note b{color:var(--text);font-weight:500;}
+
+  .ship-step{display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;}
+  .ship-step:last-child{margin-bottom:0;}
+  .ship-num{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:var(--muted);flex-shrink:0;width:24px;}
+  .ship-text h3{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin:0 0 6px;}
+  .ship-text p{font-size:14px;color:var(--muted);}
+
+  .guardrail{margin-top:14px;font-size:13px;color:var(--muted);border-left:2px solid var(--line);padding-left:14px;}
+  .guardrail b{color:var(--text);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Onboarding funnel teardown · mobile F2P RPG</div>
+    <h1>Where Players Quit</h1>
+    <p class="dek">Ten thousand installs, one funnel, one step losing half the players who reach it — and it isn't the step you'd expect.</p>
+    <div class="meta-row">
+      <div class="meta-item">Sample<b>10,000 installs, simulated on public F2P onboarding benchmarks</b></div>
+      <div class="meta-item">Method<b>Cohort funnel analysis, Python</b></div>
+      <div class="meta-item">For<b>Growth PM deciding what to fix before next patch</b></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="label">The funnel</div>
+    <div class="funnel">
+      <div class="funnel-title">Install to Day-1 return, 5 steps</div>
+
+      <div class="step">
+        <div class="step-row">
+          <div class="step-label">Install</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:100%"><span>10,000</span></div></div>
+        </div>
+      </div>
+      <div class="drop"><div class="drop-line"></div><div class="drop-note">−13% did not open the tutorial</div></div>
+
+      <div class="step">
+        <div class="step-row">
+          <div class="step-label">Tutorial started</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:87%"><span>8,700</span></div></div>
+        </div>
+      </div>
+      <div class="drop"><div class="drop-line"></div><div class="drop-note">−29% dropped mid-tutorial</div></div>
+
+      <div class="step">
+        <div class="step-row">
+          <div class="step-label">Tutorial completed</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:62%"><span>6,200</span></div></div>
+        </div>
+      </div>
+      <div class="drop"><div class="drop-line"></div><div class="drop-note hot">−46% at the login wall — the single biggest drop in the funnel</div></div>
+
+      <div class="step leak">
+        <div class="step-row">
+          <div class="step-label">Account linked</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:33.4%"><span>3,340</span></div></div>
+        </div>
+      </div>
+      <div class="drop"><div class="drop-line"></div><div class="drop-note">−15% did not claim first reward</div></div>
+
+      <div class="step">
+        <div class="step-row">
+          <div class="step-label">First reward claimed</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:28.4%"><span>2,840</span></div></div>
+        </div>
+      </div>
+      <div class="drop"><div class="drop-line"></div><div class="drop-note">−32% did not come back next day</div></div>
+
+      <div class="step">
+        <div class="step-row">
+          <div class="step-label">Day-1 return</div>
+          <div class="step-bar-track"><div class="step-bar" style="width:19.3%"><span>1,930</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Why the login wall, not the tutorial.</b> Tutorial drop-off (29%) is the bigger raw number and the obvious place to look. But it's in line with genre norms for a 4-minute tutorial. The login step loses half its players against a genre benchmark closer to 20%. That gap, not the biggest bar, is the actual finding.</div>
+  </section>
+
+  <section>
+    <div class="label">What's actually causing it</div>
+    <p>Two explanations fit a drop this size: the account-link flow is broken, or players don't want to link an account yet. Crash logs and review text point to only one of them.</p>
+    <div class="split">
+      <div class="card cold">
+        <h3>Technical failure</h3>
+        <ul>
+          <li>No error-rate spike logged at this step</li>
+          <li>OAuth completion rate is 94% once started</li>
+          <li>No device or OS clustering in the drop</li>
+        </ul>
+        <div class="verdict"><b>Not this.</b> The flow itself works.</div>
+      </div>
+      <div class="card hot">
+        <h3>Trust and timing</h3>
+        <ul>
+          <li>App-store reviews: "why do I need an account to play a tutorial"</li>
+          <li>"forced login before I even know if I like the game"</li>
+          <li>Players quit at the exact screen the prompt appears, not gradually after</li>
+        </ul>
+        <div class="verdict"><b>This is it.</b> The ask comes before the payoff.</div>
+      </div>
+    </div>
+    <p style="margin-top:18px;">The trust story gets stronger when you split by how the player arrived. A broken flow would fail everyone at roughly the same rate. A trust problem wouldn't.</p>
+    <div class="compare">
+      <div class="metric"><div class="val">41%</div><div class="tag">organic installs, past the login wall</div></div>
+      <div class="metric"><div class="val" style="color:var(--coral)">24%</div><div class="tag">paid UA installs, past the login wall</div></div>
+    </div>
+    <p style="margin-top:14px;">Paid UA traffic is colder by definition, arrives with less intent, and converts at nearly half the organic rate at this exact step. That's the signature of a trust ask landing on someone who hasn't decided they like the game yet, not a technical fault that should hit both groups evenly. It also means the fix matters most where the acquisition budget is actually spent.</p>
+  </section>
+
+  <section>
+    <div class="label">The fix, screen by screen</div>
+    <p>Not "add a delay." The prompt has to move to a moment the player has something to protect, and it has to ask for less than it does today.</p>
+    <div class="screens">
+      <div class="screen-card">
+        <div class="screen-head">Tutorial ends</div>
+        <div class="screen-body">
+          <div class="screen-copy">Tutorial complete.<br>No login prompt.</div>
+          <div class="screen-sub">Guest play continues without interruption. Nothing to link yet, nothing asked.</div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <div class="screen-head">First reward claimed</div>
+        <div class="screen-body">
+          <div class="screen-copy">You found the Ember Blade.<br>+200 gold</div>
+          <div class="screen-sub">Still no prompt. This is the first thing worth protecting, but it's too early to ask, the player just arrived here.</div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <div class="screen-head">Loss-aversion moment</div>
+        <div class="screen-body">
+          <div class="screen-copy">Your progress lives on this device. Link an account and never lose it.</div>
+          <div class="screen-btns">
+            <div class="btn-fake primary">Link with Google Play Games</div>
+            <div class="btn-fake secondary">Not now</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="mech-note"><b>Why this specific trigger.</b> The third screen doesn't fire on a timer. It fires the first time the player has something worth losing, a rare pull, a purchase, or a session over ten minutes, whichever comes first. A timer asks regardless of investment and reproduces the same problem on a delay.</p>
+    <p class="mech-note"><b>Why one-tap sign-in, not email or OTP.</b> OAuth completion is already 94% once started, so the current form isn't broken. But it's still the highest-friction option on the table. One-tap platform sign-in removes the form entirely, which matters most for exactly the paid UA segment that's least willing to invest effort right now.</p>
+    <p class="mech-note"><b>Guest players aren't abandoned.</b> A player who taps "Not now" sees the prompt again at most twice more, tied to future loss-aversion moments, then it goes quiet. A permanent, low-key "Save your progress" entry stays in the profile tab for whenever they're ready. No repeated nagging, no dead end.</p>
+  </section>
+
+  <section>
+    <div class="label">How I'd ship this</div>
+    <div class="ship-step">
+      <div class="ship-num">01</div>
+      <div class="ship-text">
+        <h3>Device-level 50/50 split on new installs</h3>
+        <p>Randomize at the device, not the session, so a player never sees both versions. Run new installs only, no back-population of existing accounts.</p>
+      </div>
+    </div>
+    <div class="ship-step">
+      <div class="ship-num">02</div>
+      <div class="ship-text">
+        <h3>Two-week read, guardrails checked daily</h3>
+        <p>The expected jump, roughly 33% to 50%, is a large effect for a conversion metric, so it doesn't need a long run to reach significance. Two weeks is for the guardrails, not the primary metric.</p>
+      </div>
+    </div>
+    <div class="ship-step">
+      <div class="ship-num">03</div>
+      <div class="ship-text">
+        <h3>10% soft launch before the full split</h3>
+        <p>Ship to a small slice first to catch anything the funnel analysis couldn't predict, like a spike in uninstalls before a player ever links, before committing half of new installs to it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">Metric to watch</div>
+    <div class="metric-row">
+      <div class="metric"><div class="val">33.4%</div><div class="tag">current: tutorial-to-linked-account</div></div>
+      <div class="arrow">→</div>
+      <div class="metric"><div class="val up">~50%</div><div class="tag">projected, soft-login pattern in comparable titles</div></div>
+    </div>
+    <p style="margin-top:18px;">Watch it split by cohort, not blended. If organic and paid UA both recover, the fix is working across the board. If only organic moves, the paid-UA trust problem runs deeper than a login prompt.</p>
+    <div class="guardrail"><b>Guardrails, not just the headline number.</b> D7 retention should hold or improve, not just the linking rate. Watch uninstall-before-link rate too, since deferring the wall creates a new way to lose a player's progress for good if they leave before ever tapping "Link."</div>
+  </section>
+
+  <footer>
+    Onboarding funnel teardown · simulated dataset modeled on public F2P mobile onboarding benchmarks · built as a portfolio artifact
+  </footer>
+
+</div>
+</body>
+</html>

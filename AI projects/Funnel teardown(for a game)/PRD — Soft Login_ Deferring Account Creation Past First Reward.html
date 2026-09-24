@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRD — Soft Login: Deferring Account Creation Past First Reward</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#11131A; --bg-raised:#181B24; --text:#F2F0E6; --muted:#8B8FA3;
+    --amber:#E8A33D; --coral:#D65D4A; --line:#272B38;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);}
+  body{font-family:'IBM Plex Sans',sans-serif;line-height:1.55;font-size:15.5px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px;margin:0 auto;padding:56px 24px 90px;}
+  h1,h2{font-family:'Space Grotesk',sans-serif;font-weight:600;margin:0;}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:32px;}
+  .doctype{font-size:12.5px;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+  h1{font-size:clamp(22px,4vw,28px);line-height:1.25;max-width:26ch;}
+  .summary{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:62ch;}
+  .meta{display:flex;gap:28px;flex-wrap:wrap;margin-top:18px;}
+  .meta-item{font-size:12px;color:var(--muted);}
+  .meta-item b{display:block;color:var(--text);font-size:13px;font-weight:500;margin-top:2px;}
+
+  section{margin-bottom:26px;}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .sec-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);}
+  h2{font-size:15.5px;}
+  p{margin:0 0 10px;max-width:64ch;font-size:14.5px;}
+  p:last-child{margin-bottom:0;}
+  ul,ol{margin:0;padding-left:20px;font-size:14.5px;}
+  li{margin-bottom:6px;}
+  li:last-child{margin-bottom:0;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){.grid2{grid-template-columns:1fr;}}
+  .card{background:var(--bg-raised);border:1px solid var(--line);border-radius:8px;padding:14px 16px;}
+  .card h3{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin:0 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+  .card p, .card ul{font-size:13.5px;}
+
+  .process{counter-reset:step;}
+  .pstep{display:flex;gap:14px;margin-bottom:14px;}
+  .pstep:last-child{margin-bottom:0;}
+  .pstep::before{counter-increment:step;content:counter(step);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--amber);background:var(--bg-raised);border:1px solid var(--line);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pstep-text b{display:block;font-size:14.5px;margin-bottom:2px;}
+  .pstep-text span{font-size:13.5px;color:var(--muted);}
+
+  .metric-strip{display:flex;gap:28px;flex-wrap:wrap;background:var(--bg-raised);border:1px solid var(--line);border-radius:8px;padding:16px 18px;}
+  .metric-strip .m{}
+  .metric-strip .val{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;}
+  .metric-strip .val.up{color:var(--amber);}
+  .metric-strip .tag{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  .status{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(232,163,61,.14);color:var(--amber);font-weight:500;}
+
+  footer{border-top:1px solid var(--line);padding-top:16px;margin-top:36px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="doctype">Product Requirements Document</div>
+    <h1>Soft Login: Deferring Account Creation Past First Reward</h1>
+    <p class="summary">Move account linking from a hard wall right after the tutorial to a moment players actually have something to protect, to recover the players a forced login costs before they've decided they like the game.</p>
+    <div class="meta">
+      <div class="meta-item">Status<b><span class="status">Draft, ready for review</span></b></div>
+      <div class="meta-item">Owner<b>Abhinav Kotar</b></div>
+      <div class="meta-item">Area<b>Growth, onboarding funnel</b></div>
+      <div class="meta-item">Source<b>Funnel teardown, Sep 2026</b></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Problem</h2></div>
+    <p>A cohort analysis of 10,000 simulated installs on a mobile F2P RPG funnel found a 46% drop at account linking, the single largest loss of any step, well above a ~20% genre benchmark for this step. Crash logs and OAuth completion rates ruled out a technical cause. Review text and the exact drop-off point pointed to timing: players are asked to create an account before they've had a reason to want one.</p>
+    <div class="metric-strip">
+      <div class="m"><div class="val" style="color:var(--coral)">46%</div><div class="tag">drop at login wall</div></div>
+      <div class="m"><div class="val" style="color:var(--coral)">24%</div><div class="tag">paid UA conversion past it</div></div>
+      <div class="m"><div class="val">41%</div><div class="tag">organic conversion past it</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Goal</h2></div>
+    <p>Lift tutorial-to-linked-account conversion from 33% toward 50% by removing the login ask before the payoff, without hurting D7 retention or reopening a data-loss risk for players who never link.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Process — how we got here</h2></div>
+    <div class="process">
+      <div class="pstep"><div class="pstep-text"><b>Ran the full funnel, not just the headline metric</b><span>Install through Day-1 return, to find where the biggest bar wasn't the real problem.</span></div></div>
+      <div class="pstep"><div class="pstep-text"><b>Ruled out the technical explanation first</b><span>Checked error rates, OAuth completion, and device clustering before trusting the trust story.</span></div></div>
+      <div class="pstep"><div class="pstep-text"><b>Split by acquisition source to stress-test the hypothesis</b><span>Organic vs. paid UA conversion gap confirmed this behaves like a trust problem, not a bug.</span></div></div>
+      <div class="pstep"><div class="pstep-text"><b>Designed the fix around the trigger, not a delay</b><span>Tied the ask to a loss-aversion moment, a rare pull or long session, instead of a fixed timer.</span></div></div>
+      <div class="pstep"><div class="pstep-text"><b>Defined guardrails before scoping the experiment</b><span>Named the new risk the fix introduces, uninstall before linking, so it's tracked from day one.</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Solution</h2></div>
+    <div class="grid2">
+      <div class="card"><h3>What changes</h3><ul><li>No login prompt at tutorial end or first reward</li><li>Prompt fires on first loss-aversion moment: rare pull, purchase, or 10+ min session</li><li>Default option is one-tap platform sign-in, not email or OTP</li></ul></div>
+      <div class="card"><h3>What doesn't</h3><ul><li>Guest play stays fully playable and uninterrupted</li><li>Prompt shown at most 3 times, then goes quiet</li><li>Manual "link account" stays available in profile anytime</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Success metrics</h2></div>
+    <p><b style="color:var(--text)">Primary:</b> tutorial-to-linked-account conversion, 33% → ~50%.<br>
+    <b style="color:var(--text)">Guardrails:</b> D7 retention flat or up; uninstall-before-link rate tracked as a new risk.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Rollout & non-goals</h2></div>
+    <p>Device-level 50/50 split on new installs only, 10% soft launch first, two-week guardrail read. Out of scope for this change: redesigning the tutorial itself, monetization prompts, or existing linked accounts.</p>
+  </section>
+
+  <footer>
+    Portfolio PRD, written against a simulated dataset modeled on public F2P onboarding benchmarks. Companion teardown and screen mockups available separately.
+  </footer>
+
+</div>
+</body>
+</html>
